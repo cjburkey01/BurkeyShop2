@@ -132,15 +132,24 @@ public class ShopHandler {
 		if (!item.getIsSellingEnabled()) {
 			return SellResult.CANNOT_SELL;
 		}
-		ItemStack stack = item.createStack(count);
-		if (stack.getAmount() > stack.getMaxStackSize()) {
-			stack.setAmount(stack.getMaxStackSize());
+		if (count < 1) {
+			return SellResult.NOT_ENOUGH_ITEMS;
 		}
+		ItemStack stack = item.createStack(1);
 		if (!player.getInventory().containsAtLeast(stack, stack.getAmount())) {
 			return SellResult.NOT_ENOUGH_ITEMS;
 		}
-		player.getInventory().removeItem(stack);
-		BurkeyShop2.getInstance().economy.addMoney(player.getUniqueId(), stack.getAmount() * item.getSellPrice());
+		
+		int tmp = count;
+		// This is the FIRST TIME I have ever used a Do-While loop...EVER
+		do {
+			ItemStack stmp = stack.clone();
+			stmp.setAmount(Math.min(stack.getMaxStackSize(), tmp));
+			tmp -= stack.getMaxStackSize();
+			player.getInventory().removeItem(stmp);
+		} while (tmp > 0);
+		
+		BurkeyShop2.getInstance().economy.addMoney(player.getUniqueId(), count * item.getSellPrice());
 		return SellResult.SUCCESS;
 	}
 	

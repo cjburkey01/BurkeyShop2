@@ -39,4 +39,6 @@ language:
   guiShopNotAvailable: '&cThat item is not available'
   guiNotEnoughMoney: '&cYou lack the funds to buy that item'
   guiInventoryFull: '&cYour inventory is full or filled up'
-  guiShopNotEnoughItems: '&cYou lack the items to sell that item'
+  guiShopNotEnoughItems: '&cYou lack the items to sell'
+  guiShopInstBuy: '&aBuy &e{}&a: &e{}'
+  guiShopInstSell: '&aSell &e{}&a: &e{}'

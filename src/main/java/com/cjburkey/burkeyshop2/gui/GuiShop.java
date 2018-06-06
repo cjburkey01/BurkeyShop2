@@ -40,7 +40,7 @@ public class GuiShop implements IGui {
 	}
 	
 	public void onClick(Inventory inventory, Player player, int slot, ClickType clickType, ItemStack stack) {
-		if (!(clickType.isLeftClick() || clickType.isShiftClick())) {
+		if (!(clickType.isLeftClick() || clickType.isShiftClick() || clickType.isRightClick())) {
 			return;
 		}
 		if (items == null) {
@@ -51,6 +51,9 @@ public class GuiShop implements IGui {
 		if (slot < items.length) {
 			ShopItem item = items[slot];
 			if (buying) {
+				if (!(clickType.isLeftClick() || clickType.isShiftClick())) {
+					return;
+				}
 				BuyResult result = shopHandler.tryBuy(player, item, (clickType.isShiftClick()) ? item.getMaxStack() : 1);
 				switch (result) {
 				case CANNOT_BUY:
@@ -67,7 +70,7 @@ public class GuiShop implements IGui {
 				}
 				return;
 			}
-			SellResult result = shopHandler.trySell(player, item, (clickType.isShiftClick()) ? item.getMaxStack() : 1);
+			SellResult result = shopHandler.trySell(player, item, ((clickType.isRightClick()) ? getCountOfItemOnPlayer(player, stack) : ((clickType.isShiftClick()) ? item.getMaxStack() : 1)));
 			switch (result) {
 			case CANNOT_SELL:
 				Util.msgLang(player, "guiShopNotAvailable");
@@ -97,6 +100,16 @@ public class GuiShop implements IGui {
 		}
 	}
 	
+	private int getCountOfItemOnPlayer(Player player, ItemStack stack) {
+		int count = 0;
+		for (ItemStack stack1 : player.getInventory().getContents()) {
+			if (stack1 != null && stack1.getType().equals(stack.getType()) && stack1.getDurability() == stack.getDurability()) {
+				count += stack1.getAmount();
+			}
+		}
+		return count;
+	}
+	
 	public String getName() {
 		return Util.getLang("guiShopName") + ((buying) ? Util.getLang("guiShopBuying") : Util.getLang("guiShopSelling"));
 	}
@@ -124,8 +137,13 @@ public class GuiShop implements IGui {
 			List<String> lore = new ArrayList<>();
 			if (buying) {
 				lore.add(Util.getLang("guiShopBuyPrice", BurkeyShop2.getInstance().economy.format(items[i].getBuyPrice())));
+				lore.add(Util.getLang("guiShopInstBuy", 1, "Left Click"));
+				lore.add(Util.getLang("guiShopInstBuy", stack.getMaxStackSize(), "Shift + Left Click"));
 			} else {
 				lore.add(Util.getLang("guiShopSellPrice", BurkeyShop2.getInstance().economy.format(items[i].getSellPrice())));
+				lore.add(Util.getLang("guiShopInstSell", 1, "Click"));
+				lore.add(Util.getLang("guiShopInstSell", stack.getMaxStackSize(), "Shift + Left Click"));
+				lore.add(Util.getLang("guiShopInstSell", "All", "Right Click"));
 			}
 			meta.setLore(lore);
 			stack.setItemMeta(meta);
