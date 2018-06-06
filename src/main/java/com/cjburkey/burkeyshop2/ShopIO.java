@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 public class ShopIO {
 	
 	private static File file;
+	private static File oldFile;
 	private static Gson gson;
 	
 	public static File getDataFile() {
@@ -20,6 +21,16 @@ public class ShopIO {
 			file.getParentFile().mkdirs();
 		}
 		return file;
+	}
+	
+	public static File getOldDataFile() {
+		if (oldFile == null) {
+			oldFile = new File(BurkeyShop2.getInstance().getDataFolder(), "shop.txt");
+		}
+		if (!oldFile.getParentFile().exists()) {
+			oldFile.getParentFile().mkdirs();
+		}
+		return oldFile;
 	}
 	
 	public static Gson getGson() {

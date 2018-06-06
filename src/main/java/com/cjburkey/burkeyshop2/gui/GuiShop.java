@@ -16,7 +16,7 @@ import com.cjburkey.burkeyshop2.shop.ShopItem;
 
 public class GuiShop implements IGui {
 	
-	public static final int ITEMS_PER_PAGE = /*5 * */9;
+	public static final int ITEMS_PER_PAGE = 5 * 9;
 	
 	private int page = 0;
 	private final ShopHandler shopHandler;

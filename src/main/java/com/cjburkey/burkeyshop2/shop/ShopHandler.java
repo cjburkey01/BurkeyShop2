@@ -1,8 +1,9 @@
 package com.cjburkey.burkeyshop2.shop;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,13 +15,14 @@ import com.cjburkey.burkeyshop2.gui.GuiPickShop;
 
 public class ShopHandler {
 	
-	private final Set<ShopItem> shopItems = new HashSet<ShopItem>();
+	private boolean _loadedOld;
+	private final List<ShopItem> shopItems = new LinkedList<ShopItem>();
 	
 	private ShopHandler() {
 	}
 	
 	public ShopItem[] getItems(boolean buying) {
-		Set<ShopItem> items = new HashSet<>();
+		List<ShopItem> items = new LinkedList<>();
 		for (ShopItem item : shopItems) {
 			if ((buying && item.getIsBuyingEnabled()) || (!buying && item.getIsSellingEnabled())) {
 				items.add(item);
@@ -72,7 +74,7 @@ public class ShopHandler {
 			return false;
 		}
 		sitem.update(buyPrice, sellPrice);
-		save();
+		sortAndSave();
 		return true;
 	}
 	
@@ -85,7 +87,7 @@ public class ShopHandler {
 			return false;
 		}
 		shopItems.add(new ShopItem(item, data, buyPrice, sellPrice));
-		save();
+		sortAndSave();
 		return true;
 	}
 	
@@ -97,7 +99,7 @@ public class ShopHandler {
 		for (ShopItem shopItem : shopItems) {
 			if (shopItem.getMaterial().equals(item) && shopItem.getData() == data) {
 				shopItems.remove(shopItem);
-				save();
+				sortAndSave();
 				return true;
 			}
 		}
@@ -141,7 +143,7 @@ public class ShopHandler {
 		}
 		
 		int tmp = count;
-		// This is the FIRST TIME I have ever used a Do-While loop...EVER
+		// This is the FIRST TIME I have used a Do-While loop...EVER
 		do {
 			ItemStack stmp = stack.clone();
 			stmp.setAmount(Math.min(stack.getMaxStackSize(), tmp));
@@ -155,18 +157,28 @@ public class ShopHandler {
 	
 	// Saving and loading handling
 	
-	public void save() {
+	public void sortAndSave() {
+		sort();
 		ShopIO.writeFile(ShopIO.getDataFile(), ShopIO.getGson().toJson(this));
 	}
 	
-	public static ShopHandler loadBankHandler() {
+	public void sort() {
+		if (BurkeyShop2.getInstance().getConfig().getBoolean("shop.sort")) {
+			shopItems.sort((ShopItem o1, ShopItem o2) -> o1.compareTo(o2));
+			Util.log("Sorted shop");
+		}
+	}
+	
+	public static ShopHandler loadShopHandler() {
 		String file = ShopIO.readFile(ShopIO.getDataFile());
 		if (file != null) {
 			try {
 				ShopHandler handler = ShopIO.getGson().fromJson(file, ShopHandler.class);
 				if (handler == null) {
-					throw new Exception("The shop file could not be parsed");
+					throw new Exception("The shop JSON could not be parsed");
 				}
+				convertOldFile(handler);
+				handler.sort();
 				return handler;
 			} catch (Exception e) {
 				Util.log("Failed to load shop items: " + e.getMessage());
@@ -175,8 +187,74 @@ public class ShopHandler {
 		}
 		Util.log("Creating a new shop handler");
 		ShopHandler nbh = new ShopHandler();
-		nbh.save();
+		Util.log("Looking for old shop.txt");
+		convertOldFile(nbh);
 		return nbh;
+	}
+	
+	private static void convertOldFile(ShopHandler shop) {
+		if (shop._loadedOld) {
+			Util.log("Already loaded the old shop.txt");
+			return;
+		}
+		if (!ShopIO.getOldDataFile().exists()) {
+			return;	// No old file present.
+		}
+		String file = ShopIO.readFile(ShopIO.getOldDataFile());
+		if (file == null) {
+			return;
+		}
+		Util.log("Loading old shop.txt data");
+		String[] spl = file.split(Pattern.quote("\n"));
+		for (String line : spl) {
+			line = line.trim();
+			if (line.isEmpty() || line.startsWith("#")) {
+				continue;
+			}
+			String[] item = line.split(Pattern.quote(";"));
+			if (item.length != 3) {
+				Util.err("Failed to parse line in old shop.txt file: " + line);
+				continue;
+			}
+			short data = 0;
+			Material itemMat = null;
+			if (item[0].contains(":")) {
+				String[] dat = item[0].split(Pattern.quote(":"));
+				if (dat.length == 2) {
+					try {
+						itemMat = Material.valueOf(dat[0]);
+						data = Short.parseShort(dat[1]);
+					} catch (Exception e) {
+						Util.err("Failed to read data in old shop.txt file: " + item[0]);
+					}
+					if (itemMat == null) {
+						continue;
+					}
+				}
+			} else {
+				try {
+					itemMat = Material.valueOf(item[0]);
+				} catch (Exception e) {
+					Util.err("Failed to determine material in old shop.txt: " + item[0]);
+					continue;
+				}
+			}
+			double buy = -1.0f;
+			double sell = -1.0f;
+			try {
+				buy = Double.parseDouble(item[1]);
+				sell = Double.parseDouble(item[2]);
+			} catch (Exception e) {
+				Util.err("Failed to read prices in old shop.txt: " + line);
+				continue;
+			}
+			if (!shop.addItem(itemMat, data, buy, sell)) {
+				Util.err("Failed to add item to shop from old shop.txt: " + line);
+			}
+		}
+		shop._loadedOld = true;
+		shop.sortAndSave();
+		Util.log("Loaded old shop.txt data");
 	}
 	
 }

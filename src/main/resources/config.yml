@@ -1,3 +1,6 @@
+shop:
+  sort: true
+
 gui:
   next: ARROW
   previous: ARROW

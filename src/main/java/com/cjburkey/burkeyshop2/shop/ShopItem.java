@@ -3,7 +3,7 @@ package com.cjburkey.burkeyshop2.shop;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class ShopItem {
+public class ShopItem implements Comparable<ShopItem> {
 	
 	private Material material;
 	private short data;
@@ -51,6 +51,15 @@ public class ShopItem {
 	
 	public int getMaxStack() {
 		return createStack(1).getMaxStackSize();
+	}
+	
+	public int compareTo(ShopItem o) {
+		int a = material.compareTo(o.material);
+		a = (a < 0) ? -1 : ((a > 0) ? 1 : 0);
+		if (a == 0) {
+			return ((Short) data).compareTo(o.data);
+		}
+		return a;
 	}
 	
 	public ShopItem clone() {
