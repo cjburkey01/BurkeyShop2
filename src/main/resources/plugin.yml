@@ -1,0 +1,21 @@
+name: ${project.name}
+main: com.cjburkey.burkeyshop2.BurkeyShop2
+authors: [ "CJ Burkey" ]
+database: false
+prefix: ${project.name}
+version: ${project.version}
+website: ${project.url}
+softDepend: [ "Vault" ]
+
+permission:
+  burkeyshop2.use:
+    description: 'Allow use of the BurkeyShop2 plugin'
+    default: true
+  burkeyshop2.admin:
+    description: 'Allow modification of the shop with commands'
+    default: op
+
+commands:
+  shop:
+    description: 'The main command for the BurkeyShop2 plugin'
+    usage: '/<command>'

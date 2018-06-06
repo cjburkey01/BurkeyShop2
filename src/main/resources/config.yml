@@ -1,0 +1,42 @@
+gui:
+  next: ARROW
+  previous: ARROW
+  exit: BARRIER
+  buy: DIAMOND
+  sell: EMERALD
+
+language:
+  itemAdded: '&aAdded &e{} &ato the shop'
+  itemUpdated: '&aUpdated prices for &e{} &ain the shop'
+  itemRemoved: '&aRemoved &e{} &afrom the shop'
+  itemExists: '&cThat item is already in the shop'
+  itemNotExists: '&cThat item does not exist in the shop'
+  notInShop: '&cItem must have at least a non-negative buy or sell price'
+  holdItem: '&cPlease hold an item in your hand'
+  usagePrefix: '&cUsage: &e'
+  cmdNotFound: '&cThat sub-command was not found, try &e/shop help'
+  ingameOnly: '&cOnly in-game players may use that sub-command'
+  consoleOnly: '&cOnly the server may use that sub-command'
+  noPermission: '&cYou do not have permission to use &bBurkeyShop2&a2'
+  error: '&cAn internal error occurred, please contact an admin or moderator'
+  invalidPrices: '&cPlease enter valid prices (formatted as a decimal with no commas and only a single full-stop)'
+  unknown: '&cUnknown'
+  shopReloaded: '&aShop reloaded'
+  guiPickShopName: 'Shop Operation'
+  guiShopName: 'GUI Shop - '
+  guiShopBuying: 'Buying'
+  guiShopSelling: 'Selling'
+  guiShopBuy: '&a&lBuy'
+  guiShopSell: '&a&lSell'
+  guiShopBuyPrice: '&aBuy: &e{}'
+  guiShopSellPrice: '&aSell: &e{}'
+  guiShopCannotBuy: '&cNot for sale'
+  guiShopCannotSell: '&cCannot be sold'
+  guiShopBack: '&cBack'
+  guiShopPrevious: '&aPrevious Page'
+  guiShopNext: '&aNext Page'
+  guiShopExit: '&cExit'
+  guiShopNotAvailable: '&cThat item is not available'
+  guiNotEnoughMoney: '&cYou lack the funds to buy that item'
+  guiInventoryFull: '&cYour inventory is full or filled up'
+  guiShopNotEnoughItems: '&cYou lack the items to sell that item'

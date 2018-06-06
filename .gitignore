@@ -1,0 +1,7 @@
+/target/
+.project
+.classpath
+.settings/
+run/*
+!run/spigot-1.12.2.jar
+*.DS_Store
